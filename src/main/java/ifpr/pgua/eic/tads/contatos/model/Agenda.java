@@ -1,9 +1,7 @@
 package ifpr.pgua.eic.tads.contatos.model;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,82 +9,52 @@ import java.util.List;
 import com.github.hugoperlin.results.Resultado;
 
 import ifpr.pgua.eic.tads.contatos.model.daos.ContatoDAO;
+import ifpr.pgua.eic.tads.contatos.model.daos.TarefaDAO;
 
 public class Agenda {
-    private ArrayList<Contato> lista;
-
-    private ArrayList<Tarefa> tarefas;
-
     private FabricaConexoes fabricaConexao;
     private ContatoDAO contatoDao;
+    private TarefaDAO tarefaDao;
+    private ArrayList<Tarefa> tarefas;
+    private ArrayList<Contato> lista;
 
-    public Agenda(FabricaConexoes fabricaConexao, ContatoDAO contatoDao) {
-        lista = new ArrayList<>();
-        tarefas = new ArrayList<>();
+    public Agenda(FabricaConexoes fabricaConexao, ContatoDAO contatoDao, TarefaDAO tarefaDao) {
         this.fabricaConexao = fabricaConexao;
         this.contatoDao = contatoDao;
+        this.tarefaDao = tarefaDao;
+        this.tarefas = new ArrayList<>();
+        this.lista = new ArrayList<>(); // Adicione esta linha
     }
 
-    public ArrayList<Tarefa> getTarefas() {
-        tarefas.clear();
-        try {
-            Connection con = fabricaConexao.getConnection();
-            PreparedStatement pstm = con.prepareStatement("SELECT * FROM oo_tarefas");
+    public List<Tarefa> getTarefas() {
+        Resultado<List<Tarefa>> resultado = tarefaDao.listar();
 
-            ResultSet rs = pstm.executeQuery();
-
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String titulo = rs.getString("titulo");
-                String descricao = rs.getString("descricao");
-
-                Tarefa tarefa = new Tarefa(id, titulo, descricao);
-
-                tarefas.add(tarefa);
-            }
-            con.close();
-        } catch (SQLException e) {
-            System.out.println("Problema ao fazer seleção!! " + e.getMessage());
+        if (resultado.foiSucesso()) {
+            return resultado.comoSucesso().getObj();
+        } else {
+            // Lidar com o erro, retornando uma lista vazia ou lançando uma exceção
+            System.out.println("Erro ao obter lista de tarefas: " + resultado.getMsg());
+            return new ArrayList<>();
         }
-        return tarefas;
-    }
-
-    public Resultado<List<Contato>> getLista() {
-        return contatoDao.listar(); 
     }
 
     public String cadastrarTarefa(String titulo, String descricao) {
-
         if (titulo.isBlank() || titulo.isEmpty()) {
-            return "Nome inválido!";
+            return "Título inválido!";
         }
 
         if (descricao.isBlank() || descricao.isEmpty()) {
-            return "Telefone inválido!";
+            return "Descrição inválida!";
         }
 
         Tarefa tarefa = new Tarefa(titulo, descricao);
 
-        try {
-            Connection con = fabricaConexao.getConnection();
+        Resultado<Tarefa> resultado = tarefaDao.criar(tarefa);
 
-            PreparedStatement pstm = con.prepareStatement("INSERT INTO oo_tarefas(titulo,descricao) VALUES (?,?)");
-
-            pstm.setString(1, tarefa.getTitulo());
-            pstm.setString(2, tarefa.getDescricao());
-            
-            pstm.executeUpdate();
-
-            tarefas.add(tarefa);
-            con.close();
-            return "Tarefa cadastrada!";
-        } catch (SQLException e) {
-            return "Problema ao conectar " + e.getMessage();
-        }
+        return resultado.getMsg();
     }
 
     public String cadastrar(String nome, String telefone, String email) {
-
         if (nome.isBlank() || nome.isEmpty()) {
             return "Nome inválido!";
         }
@@ -99,49 +67,33 @@ public class Agenda {
             return "E-mail inválido!";
         }
 
-        if (buscar(nome) == null) {
+        Contato contato = new Contato(nome, telefone, email);
 
-            Contato contato = new Contato(nome, telefone, email);
+        Resultado<Contato> resultado = contatoDao.criar(contato);
 
-            Resultado<Contato> resultado = contatoDao.criar(contato);   
-
-            return resultado.getMsg();
-
-        } else {
-            return "Erro! Dados já cadastrados!";
-        }
-
-    }
-
-    public Contato buscar(String nome) {
-
-        for (Contato c : lista) {
-            if (c.getNome().equals(nome)) {
-                return c;
-            }
-        }
-        return null;
+        return resultado.getMsg();
     }
 
     public Contato buscarNomeMaisComprido() {
+        Resultado<Contato> resultado = contatoDao.buscarNomeMaisComprido();
 
-        Contato maiorNome = lista.get(0);
-
-        for (int i = 1; i < lista.size(); i++) {
-            if (lista.get(i).getNome().length() > maiorNome.getNome().length()) {
-                maiorNome = lista.get(i);
-            }
+        if (resultado.foiSucesso()) {
+            return resultado.comoSucesso().getObj();
+        } else {
+            System.out.println("Erro ao buscar contato com nome mais comprido: " + resultado.getMsg());
+            return null;
         }
-        return maiorNome;
     }
 
     public String listar() {
+        List<Contato> contatos = contatoDao.listar().comoSucesso().getObj();
         String texto = "Contatos Cadastrados:";
 
-        for (Contato c : lista) {
+        for (Contato c : contatos) {
             texto += c.toString() + "<br/>";
         }
 
         return texto;
     }
+
 }

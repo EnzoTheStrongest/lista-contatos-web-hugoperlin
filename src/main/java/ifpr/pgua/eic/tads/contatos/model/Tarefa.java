@@ -4,12 +4,12 @@ public class Tarefa {
     private int id;
     private String titulo;
     private String descricao;
-    
+
     public Tarefa(String titulo, String descricao) {
         this.titulo = titulo;
         this.descricao = descricao;
     }
-    
+
     public Tarefa(int id, String titulo, String descricao) {
         this.id = id;
         this.titulo = titulo;
@@ -44,7 +44,5 @@ public class Tarefa {
     public String toString() {
         return "Tarefa [id=" + id + ", titulo=" + titulo + ", descricao=" + descricao + "]";
     }
-    
-    
-    
+
 }

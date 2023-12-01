@@ -21,10 +21,9 @@ public class FabricaConexoes {
 
     private FabricaConexoes() {
         conexoes = new Connection[MAX_CONNECTIONS];
-        // carregar dados de conexão do .env
         URL_DB = Env.get("URL_DB");
         DB_NAME = Env.get("DB_NAME");
-        CON_STRING = URL_DB+"/"+DB_NAME;
+        CON_STRING = URL_DB + "/" + DB_NAME;
         USER = Env.get("DB_USER");
         PASSWORD = Env.get("DB_PASSWORD");
     }

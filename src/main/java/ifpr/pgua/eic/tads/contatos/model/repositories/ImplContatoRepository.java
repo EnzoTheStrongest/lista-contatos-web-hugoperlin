@@ -1,3 +1,4 @@
+// ImplContatoRepository.java
 package ifpr.pgua.eic.tads.contatos.model.repositories;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public class ImplContatoRepository implements ContatoRepository {
 
     private ContatoDAO dao;
 
-    public ImplContatoRepository(ContatoDAO dao){
+    public ImplContatoRepository(ContatoDAO dao) {
         this.dao = dao;
     }
 
@@ -31,13 +32,21 @@ public class ImplContatoRepository implements ContatoRepository {
 
         Contato contato = new Contato(nome, telefone, email);
 
-        return dao.criar(contato); 
-
+        return dao.criar(contato);
     }
 
     @Override
     public Resultado<List<Contato>> listarTodos() {
-        return dao.listar(); 
+        return dao.listar();
     }
-    
+
+    @Override
+    public Resultado<Contato> buscarPorNome(String nome) {
+        return dao.buscarPorNome(nome);
+    }
+
+    @Override
+    public Resultado<Contato> buscarNomeMaisComprido() {
+        return dao.buscarNomeMaisComprido();
+    }
 }
