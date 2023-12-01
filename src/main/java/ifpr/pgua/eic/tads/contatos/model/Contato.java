@@ -1,11 +1,13 @@
 package ifpr.pgua.eic.tads.contatos.model;
 
 public class Contato {
-
+    
     private int id;
     private String nome;
     private String telefone;
     private String email;
+
+    
 
     public Contato(int id, String nome, String telefone, String email) {
         this.id = id;
@@ -14,21 +16,21 @@ public class Contato {
         this.email = email;
     }
 
-    public Contato(String nome, String telefone, String email) {
+    public Contato(String nome, String telefone, String email){
         this.nome = nome;
         this.telefone = telefone;
         this.email = email;
     }
 
-    public String getNome() {
+    public String getNome(){
         return nome;
     }
 
-    public String getTelefone() {
+    public String getTelefone(){
         return telefone;
     }
 
-    public String getEmail() {
+    public String getEmail(){
         return email;
     }
 
@@ -44,8 +46,8 @@ public class Contato {
         this.email = email;
     }
 
-    public String toString() {
-        return "Nome: " + nome + " Telefone: " + telefone + " E-mail: " + email;
+    public String toString(){
+        return "Nome: "+nome+" Telefone: "+telefone+" E-mail: "+email; 
     }
-
+    
 }
